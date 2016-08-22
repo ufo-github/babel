@@ -86,17 +86,17 @@ function compile(code, filename) {
   return result.code;
 }
 
-function shouldIgnore(filename) {
+function shouldCompile(filename) {
   if (!ignore && !only) {
-    return getRelativePath(filename).split(path.sep).indexOf("node_modules") >= 0;
+    return getRelativePath(filename).split(path.sep).indexOf("node_modules") < 0;
   } else {
-    return util.shouldIgnore(filename, ignore || [], only);
+    return !util.shouldIgnore(filename, ignore || [], only);
   }
 }
 
 function hookExtensions(exts) {
   if (revert) revert();
-  revert = addHook(compile, { exts, matcher: shouldIgnore, ignoreNodeModules: false });
+  revert = addHook(compile, { exts, matcher: shouldCompile, ignoreNodeModules: false });
 }
 
 hookExtensions(util.canCompile.EXTENSIONS);
