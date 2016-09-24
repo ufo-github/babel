@@ -31,7 +31,7 @@ let transformOpts = {};
 let ignore;
 let only;
 
-let revert        = null;
+let piratesRevert        = null;
 let maps          = {};
 
 let cwd = process.cwd();
@@ -95,13 +95,18 @@ function shouldCompile(filename) {
 }
 
 function hookExtensions(exts) {
-  if (revert) revert();
-  revert = addHook(compile, { exts, matcher: shouldCompile, ignoreNodeModules: false });
+  if (piratesRevert) piratesRevert();
+  piratesRevert = addHook(compile, { exts, matcher: shouldCompile, ignoreNodeModules: false });
+}
+
+function revert() {
+  if (piratesRevert) piratesRevert();
+  delete require.cache[require.resolve(__filename)];
 }
 
 hookExtensions(util.canCompile.EXTENSIONS);
 
-export default function (opts?: Object = {}) {
+const setOptions = function (opts?: Object = {}) {
   if (opts.only != null) only = util.arrayify(opts.only, util.regexify);
   if (opts.ignore != null) ignore = util.arrayify(opts.ignore, util.regexify);
 
@@ -115,4 +120,8 @@ export default function (opts?: Object = {}) {
   delete opts.only;
 
   extend(transformOpts, opts);
-}
+};
+
+setOptions.revert = revert;
+setOptions.default = setOptions;
+module.exports = setOptions;
