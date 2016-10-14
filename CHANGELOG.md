@@ -13,6 +13,148 @@ _Note: Gaps between patch versions are faulty, broken or test releases._
 
 See [CHANGELOG - 6to5](CHANGELOG-6to5.md) for the pre-4.0.0 version changelog.
 
+## v6.17.1 (2016-10-14)
+
+#### :bug: Bug Fix
+* `babel-core`
+  * [#4631](https://github.com/babel/babel/pull/4631) fix(shouldIgnore): filename normalization should be platform sensitive. ([@rozele](https://github.com/rozele))
+* `babel-plugin-transform-es2015-parameters`
+  * [#4666](https://github.com/babel/babel/pull/4666) Fix error when constructor default arg refers to self or own static property. ([@danharper](https://github.com/danharper))
+
+```js
+// was producing invalid code
+class Ref {
+  static nextId = 0
+  constructor(id = ++Ref.nextId, n = id) {
+    this.id = n
+  }
+}
+
+assert.equal(1, new Ref().id)
+assert.equal(2, new Ref().id)
+```
+
+  * [#4674](https://github.com/babel/babel/pull/4674) Handle side effects correctly in rest params index expressions (#4348). ([@motiz88](https://github.com/motiz88))
+
+```js
+function first(...values) {
+    let index = 0;
+    return values[index++]; // ++ was happening twice
+}
+
+console.log(first(1, 2));
+```
+
+* `babel-plugin-transform-es2015-block-scoping`
+  * [#4669](https://github.com/babel/babel/pull/4669) Fix block scoping transform for declarations in labeled statements. ([@motiz88](https://github.com/motiz88))
+
+```js
+let x = 10;
+if (1)
+{
+    ca: let x = 20;
+}
+```
+
+* `babel-helper-explode-assignable-expression`, `babel-plugin-transform-exponentiation-operator`
+  * [#4672](https://github.com/babel/babel/pull/4672) Avoid repeating impure (template) literals when desugaring **= (#4403). ([@motiz88](https://github.com/motiz88))
+
+```js
+a[`${b++}`] **= 1;
+```
+
+  * [#4642](https://github.com/babel/babel/pull/4642) Exclude super from being assign to ref variable. ([@danez](https://github.com/danez))
+
+```js
+foo = {
+  bar() {
+    return super.baz **= 12;
+  }
+}
+```
+
+* `babel-plugin-transform-es2015-shorthand-properties`, `babel-plugin-transform-flow-comments`, `babel-plugin-transform-flow-strip-types`
+  * [#4670](https://github.com/babel/babel/pull/4670) Retain return types on ObjectMethods in transform-es2015-shorthand-properties. ([@danharper](https://github.com/danharper))
+
+```js
+// @flow
+var obj = {
+  method(a: string): number {
+    return 5 + 5;
+  }
+};
+```
+
+* `babel-helper-define-map`, `babel-plugin-transform-es2015-classes`, `babel-plugin-transform-flow-comments`, `babel-plugin-transform-flow-strip-types`
+  * [#4668](https://github.com/babel/babel/pull/4668) Retain method return types on transform-es2015-classes (closes #4665). ([@danharper](https://github.com/danharper))
+
+```js
+// @flow
+class C {
+  m(x: number): string {
+    return 'a';
+  }
+}
+```
+
+#### :nail_care: Polish
+* `babel-core`
+  * [#4685](https://github.com/babel/babel/pull/4685) Better error messaging when preset options are given without a corresponding preset. ([@kaicataldo](https://github.com/kaicataldo))
+
+We've had a few reports of users not wrapping a preset in `[]` when passing in options so we added an extra error message for this.
+
+```
+ReferenceError: [BABEL] /test.js: Unknown option: base.loose2. Check out http://babeljs.io/docs/usage/options/ for more information about options.
+
+A common cause of this error is the presence of a configuration options object without the corresponding preset name. Example:
+
+Invalid:
+  `{ presets: [{option: value}] }`
+Valid:
+  `{ presets: ["pluginName", {option: value}] }`
+
+For more detailed information on preset configuration, please see http://babeljs.io/docs/plugins/#pluginpresets-options.
+```
+
+  * [#4688](https://github.com/babel/babel/pull/4688) Removing invalid babylon options. ([@existentialism](https://github.com/existentialism))
+
+#### Documentation
+* Other
+  * [#4653](https://github.com/babel/babel/pull/4653) Tweak license for GitHub display. ([@existentialism](https://github.com/existentialism))
+
+#### :house: Internal
+* `babel-cli`, `babel-core`, `babel-plugin-transform-es2015-modules-systemjs`, `babel-preset-es2015`
+  * [#4721](https://github.com/babel/babel/pull/4721) update eslint-config, fixes, add commands. ([@hzoo](https://github.com/hzoo))
+* `babel-cli`, `babel-core`
+  * [#4564](https://github.com/babel/babel/pull/4564) Enable babel for tests. ([@danez](https://github.com/danez))
+* `babel-register`
+  * [#4660](https://github.com/babel/babel/pull/4660) 🚀 Update home-or-tmp to version 2.0.0. ([@danez](https://github.com/danez))
+* `babel-cli`
+  * [#4680](https://github.com/babel/babel/pull/4680) Update: Eslint to 3.0 and update CI builds (Fixes [#4638](https://github.com/babel/babel/issues/4638)). ([@gyandeeps](https://github.com/gyandeeps))
+  * [#4662](https://github.com/babel/babel/pull/4662) 🚀 Update fs-readdir-recursive to 1.0.0. ([@danez](https://github.com/danez))
+* Other
+  * [#4676](https://github.com/babel/babel/pull/4676) Remove travis short-circuit script. ([@motiz88](https://github.com/motiz88))
+* `babel-helper-transform-fixture-test-runner`
+  * [#4664](https://github.com/babel/babel/pull/4664) 🚀 Update chai to version 3.0.0. ([@danez](https://github.com/danez))
+* `babel-core`
+  * [#4649](https://github.com/babel/babel/pull/4649) 🚀 Update json5 to version 0.5.0. ([@danez](https://github.com/danez))
+  * [#4650](https://github.com/babel/babel/pull/4650) 🚀 Remove shebang dependency. ([@danez](https://github.com/danez))
+* `babel-generator`
+  * [#4652](https://github.com/babel/babel/pull/4652) 🚀 Update detect-indent to version 4.0.0. ([@danez](https://github.com/danez))
+* `babel-traverse`
+  * [#4651](https://github.com/babel/babel/pull/4651) 🚀 Update globals to version 9.0.0. ([@danez](https://github.com/danez))
+
+#### Commiters: 9
+- Brian Ng ([existentialism](https://github.com/existentialism))
+- Dan Harper ([danharper](https://github.com/danharper))
+- Daniel Tschinder ([danez](https://github.com/danez))
+- Eric Rozell ([rozele](https://github.com/rozele))
+- Gyandeep Singh ([gyandeeps](https://github.com/gyandeeps))
+- Henry Zhu ([hzoo](https://github.com/hzoo))
+- Kai Cataldo ([kaicataldo](https://github.com/kaicataldo))
+- Moti Zilberman ([motiz88](https://github.com/motiz88))
+- [sugargreenbean](https://github.com/sugargreenbean)
+
 ## v6.17.0 (2016-10-01)
 
 #### :eyeglasses: Spec Compliancy
